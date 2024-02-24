@@ -1,12 +1,26 @@
-bitstruct==8.11.0
-hid==1.0.5
-jellyfish==0.8.9
-prettytable==2.4.0
-prompt-toolkit==3.0.22
-Pygments==2.10.0
-pyparsing==3.0.5
+# requirements.txt
+
+bitstruct==8.19.0
+black==24.2.0
+click==8.1.7
+colorama==0.4.6
+importlib-resources==6.1.1
+jellyfish==1.0.3
+mypy-extensions==1.0.0
+packaging==23.2
+pathspec==0.12.1
+platformdirs==4.2.0
+prettytable==3.10.0
+prompt-toolkit==3.0.43
+pyglet==2.0.10
+Pygments==2.17.2
+pyparsing==3.1.1
 python-nubia==0.2b2
+# pyvkb==0.1.0
 pywinusb==0.4.2
+setuptools-scm==8.0.4
 SimConnect==0.4.26
-termcolor==1.1.0
-wcwidth==0.2.5
+termcolor==2.4.0
+tomli==2.0.1
+typing_extensions==4.9.0
+wcwidth==0.2.13

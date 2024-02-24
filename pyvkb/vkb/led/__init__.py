@@ -6,13 +6,10 @@ from textwrap import wrap
 import bitstruct as bs
 from pywinusb.hid import HidDevice
 
-LED_CONFIG_COUNT = 16
+LED_CONFIG_COUNT = 24
 LED_REPORT_ID = 0x59
 LED_REPORT_LEN = 129
 LED_SET_OP_CODE = bytes.fromhex("59a50a")
-# TODO: it really looks like the 4 bytes after the op code are random, but using random numbers doesn't work
-#       this... however... always works, so <shrugs>
-LED_SET_UKN_CODE = bytes.fromhex("6e4d349a")
 
 
 class ColorMode(IntEnum):
@@ -37,42 +34,39 @@ class LEDConfig:
 
     Setting the LEDs consists of a possible 30 LED configs each of which is a 4 byte structure as follows:
 
-        byte 0:  LED ID
-        bytes 2-4: a 24 bit color config as follows:
+    byte 0:  LED ID
+    bytes 2-4: a 24 bit color config as follows::
 
-            000 001 010 011 100 101 110 111
-            clm lem  b2  g2  r2  b1  g1  r1
+        000 001 010 011 100 101 110 111
+        clm lem  b2  g2  r2  b1  g1  r1
 
-        color mode (clm):
-            0 - color1
-            1 - color2
-            2 - color1/2
-            3 - color2/1
-            4 - color1+2
+    color mode (clm):
+        0 - color1
+        1 - color2
+        2 - color1/2
+        3 - color2/1
+        4 - color1+2
 
-        led mode (lem):
-            0 - off
-            1 - constant
-            2 - slow blink
-            3 - fast blink
-            4 - ultra fast
+    led mode (lem):
+        0 - off
+        1 - constant
+        2 - slow blink
+        3 - fast blink
+        4 - ultra fast
 
-    Colors
-    ------
+    Colors:
+        VKB uses a simple RGB color configuration for all LEDs. Non-rgb LEDs will not light if you set their primary
+        color to 0 in the color config. The LEDs have a very reduced color range due to VKB using 0-7 to determine the
+        brightness of R, G, and B. `LEDConfig` takes in a standard hex color code and converts it into this smaller
+        range, so color reproduction will not be accurate.
 
-    VKB uses a simple RGB color configuration for all LEDs. Non-rgb LEDs will not light if you set their primary color
-    to 0 in the color config. The LEDs have a very reduced color range due to VKB using 0-7 to determine the brightness
-    of R, G, and B. `LEDConfig` takes in a standard hex color code and converts it into this smaller range, so color
-    reproduction will not be accurate.
-
-    Bytes
-    -----
-
-    Convert the LEDConfig to an appropriate binary representation by using `bytes`::
+    Bytes:
+        Convert the LEDConfig to an appropriate binary representation by using `bytes`::
 
         >>> led1 = LEDConfig(led=1, led_mode=LEDMode.CONSTANT)
         >>> bytes(led1)
-        b'\x01\x07p\x04'
+        b'\\x01\\x07p\\x04'
+
 
     :param led: `int` ID of the LED to control
     :param color_mode: `int` color mode, see :class:`ColorMode`
@@ -197,8 +191,6 @@ def set_leds(dev: HidDevice, led_configs: [LEDConfig]):
 
     num_configs = len(led_configs)
     led_configs = b"".join(bytes(_) for _ in led_configs)
-    # see note about trying random above
-    # LED_SET_OP_CODE + struct.pack('>4B', *[random.randint(1, 255) for _ in range(4)]) + led_configs
     led_configs = os.urandom(2) + struct.pack(">B", num_configs) + led_configs
     chksum = _led_conf_checksum(num_configs, led_configs)
     cmd = LED_SET_OP_CODE + chksum + led_configs
@@ -229,4 +221,4 @@ def hex_color_to_vkb_color(hex_code: str) -> [int]:
 
 def vkb_color_to_hex_color(vkb_color_code: [int]) -> str:
     """ Takes a VKB color code `[R, G, B]` and converts it into a hex code string"""
-    return f'#{"".join("%02x" % round((min(int(i), 7)/7.0) * 255) for i in vkb_color_code)}'
+    return f'#{"".join("%02x" % round((min(int(i), 7) / 7.0) * 255) for i in vkb_color_code)}'

@@ -6,7 +6,7 @@ from time import sleep
 from vkb.devices import find_all_vkb
 from vkb import led
 
-vkb_inst = find_all_vkb()[0]
+vkb_inst = find_all_vkb()[1]
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -49,9 +49,12 @@ LED_FSM_VS = 29
 ################################
 # Simvar reference map
 ################################
+
+# Key       # SimVar                                            # Description                           # Status
+
 SC_SimvarRefMap = {
     ######## AutoPilot Master ########
-    0   :   aq.find('AUTOPILOT_MASTER'),                        #
+    0   :   aq.find('AUTOPILOT_MASTER'),                        #                                       #
     1   :   aq.find('AUTOPILOT_FLIGHT_DIRECTOR_ACTIVE'),        #
     2   :   aq.find('AUTOPILOT_YAW_DAMPER'),                    #
     
@@ -70,14 +73,14 @@ SC_SimvarRefMap = {
     22  :   aq.find('AUTOPILOT_VERTICAL_HOLD'),                 # VS  Const G X
     23  :   aq.find('AUTOPILOT_FLIGHT_LEVEL_CHANGE'),           # FLC Const G X
     24  :   aq.find('AUTOPILOT_ALTITUDE_LOCK'),                 # ALT Const G X
-    25  :   aq.find('AUTOPILOT_ALTITUDE_ARM'),                  # ALT Const Y X ; seems no use
+    25  :   aq.find('AUTOPILOT_ALTITUDE_ARM'),                  # ALT Const Y X ; seems no use          # Not found
     26  :   aq.find('AUTOPILOT_NAV1_LOCK'),                     # NAV Const Y ? (Lo Prio)
-    27  :   aq.find('AUTOPILOT_APPROACH_CAPTURED'),             # NAV Const G X
-    28  :   aq.find('AUTOPILOT_APPROACH_ACTIVE'),               # NAV Const Y X (Hi Prio)
-    29  :   aq.find('AUTOPILOT_APPROACH_ARM'),                  # APR Const Y X ; seems no use
+    27  :   aq.find('AUTOPILOT_APPROACH_CAPTURED'),             # NAV Const G X                         # Not found
+    28  :   aq.find('AUTOPILOT_APPROACH_ACTIVE'),               # NAV Const Y X (Hi Prio)               # Not found
+    29  :   aq.find('AUTOPILOT_APPROACH_ARM'),                  # APR Const Y X ; seems no use          # Not found
     30  :   aq.find('AUTOPILOT_GLIDESLOPE_HOLD'),               # APR Const G X (Lo Prio)
-    31  :   aq.find('AUTOPILOT_GLIDESLOPE_ARM'),                # APR Const Y X
-    32  :   aq.find('AUTOPILOT_GLIDESLOPE_ACTIVE'),             # APR Const G X
+    31  :   aq.find('AUTOPILOT_GLIDESLOPE_ARM'),                # APR Const Y X                         # Not found
+    32  :   aq.find('AUTOPILOT_GLIDESLOPE_ACTIVE'),             # APR Const G X                         # Not found
     
     50  :   aq.find('AUTOPILOT_ALTITUDE_LOCK_VAR'),             # ALT selet, not used
 }
@@ -134,7 +137,7 @@ vkb_inst.update_leds(VKB_LedCfgData)
 sleep(1)
 
 ################################
-# Auto handle VKB LED update logic 
+# Auto handle VKB LED update logic
 ################################
 def VKB_UpdateLedCfgData( led_cfg ) :
     if VKB_LedStatus[led_cfg.led] != led_cfg :
@@ -154,7 +157,8 @@ while not sm.quit :
         if   None != sc_ref :
             SC_SimvarData[sc_key] = sc_ref.get()
         else:
-            print("[E] Simvar not found !")
+            print("[E] Simvar key={}, ref={} not found !".format(sc_key, sc_ref))
+            SC_SimvarData[sc_key] = 0.0
     
     #print(aq.find('AVIONICS_MASTER_SWITCH').get())
     #ELECTRICAL_MASTER_BATTERY

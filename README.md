@@ -1,6 +1,6 @@
 # VKB FSM-GA LED bridge for MSFS
 
-Steps to run:
+## Steps to run:
 
 1. Install [Python 3.8.11 Windows installer 64-bit](https://www.python.org/downloads/windows/) 
    (You can try other versions at your own risk!)
@@ -37,3 +37,16 @@ first LED on your FSM-GA. It may differ depend on how you connect these modules.
 I have a SEM and it occupied led number 10-17. Check VkbDevCfg's 
 Global -&gt; External -&gt; External Devices -&gt; FSM.GA and see the `Base` to the right 
 ofr `LedsN`.
+
+## Usage (Updated by CkovMk)
+
+```sh
+pip install -r ./requirements.txt
+
+# Must install pyvkb manually!
+cd pyvkb
+python .\setup.py install
+
+cd src
+python .\vkb-msfs-led.py
+```
