@@ -59,40 +59,13 @@ class NXT_SEM_THQ_FSMGA(VKBDevice):
     ]
 
     @property
-    def led_top(self):
-        return self.get_led(self.LED_TOP)
+    def led_mode(self):
+        return self.get_led(self.LED_THQ_MD)
 
-    @led_top.setter
-    def led_top(self, color1):
+    @led_mode.setter
+    def led_mode(self, color1):
         self.set_led(
-            self.LED_TOP,
-            color1=color1,
-            color_mode=led.ColorMode.COLOR1,
-            led_mode=led.LEDMode.CONSTANT,
-        )
-
-    @property
-    def led_base(self):
-        return self.get_led(self.LED_BASE)
-
-    @led_base.setter
-    def led_base(self, color):
-        vc = led.hex_color_to_vkb_color(color)
-        self.set_led(
-            self.LED_BASE,
-            color1=color,
-            color_mode=led.ColorMode.COLOR1,
-            led_mode=led.LEDMode.CONSTANT,
-        )
-
-    @property
-    def led_pov(self):
-        return self.get_led(self.LED_POV)
-
-    @led_pov.setter
-    def led_pov(self, color1):
-        self.set_led(
-            self.LED_POV,
+            self.LED_THQ_MD,
             color1=color1,
             color_mode=led.ColorMode.COLOR1,
             led_mode=led.LEDMode.CONSTANT,
