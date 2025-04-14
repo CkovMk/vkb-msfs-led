@@ -7,7 +7,7 @@ from time import sleep
 from vkb.devices import find_all_vkb
 from vkb import led
 
-vkb_inst = find_all_vkb()[1]
+vkb_inst = find_all_vkb()[0]
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -210,7 +210,7 @@ VKB_LedRefMap = {
         SIMVAR_WTAP_WT1000, SIMVAR_WTAP_NAV_TRK],
     LED_FSM_L4: [                                                               # APR / GS
         SIMVAR_WTAP_WT1000, SIMVAR_WTAP_GP_Mode],
-    LED_FSM_R1: [SIMVAR_S_AP_ALT, SIMVAR_S_AP_VS, SIMVAR_S_AP_FLC],             # ALT
+    LED_FSM_R1: [SIMVAR_S_AP_ALT, SIMVAR_S_AP_PIT, SIMVAR_S_AP_VS, SIMVAR_S_AP_FLC],             # ALT
     LED_FSM_R2: [SIMVAR_S_AP_LVL],                                              # LVL
     LED_FSM_R3: [                                                               # VNV, testing
         SIMVAR_WTAP_WT1000, SIMVAR_WTAP_VNV, SIMVAR_WTAP_VNV_PATH], 
@@ -263,7 +263,7 @@ while not sm.quit :
     
     # update simvars from MSFS
     for sc_key, sc_ref in SC_SimvarRefMap.items() :
-        if   None != sc_ref :
+        if None != sc_ref :
             SC_SimvarData[sc_key] = sc_ref.get()
         else:
             print("[E] Simvar key={}, ref={} not found !".format(sc_key, sc_ref))
@@ -311,10 +311,12 @@ while not sm.quit :
                 #print(SC_SimvarData[led_ref[4]])
                 #print(SC_SimvarData[led_ref[5]])
 
-                if ((1.0 == SC_SimvarData[led_ref[4]]) & (1.0 == SC_SimvarData[led_ref[5]])) : # WTAP: Lnav_Is_Tracking, [G]
-                    VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.CONSTANT, '#777', '#000'))
-                    print("WT_LNAV")
-                elif ((1.0 == SC_SimvarData[led_ref[0]]) | (1.0 == SC_SimvarData[led_ref[1]])) : # NAV enabled.
+                #if ((1.0 == SC_SimvarData[led_ref[4]]) & (1.0 == SC_SimvarData[led_ref[5]])) : # WTAP: Lnav_Is_Tracking, [G]
+                #    VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.CONSTANT, '#777', '#000'))
+                #    print("WT_LNAV")
+                #elif
+                
+                if ((1.0 == SC_SimvarData[led_ref[0]]) | (1.0 == SC_SimvarData[led_ref[1]])) : # NAV enabled.
                     if ((1.0 == SC_SimvarData[led_ref[2]]) | (1.0 == SC_SimvarData[led_ref[3]])) : # NAV armed, [Y]
                         VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1_p_2, led.LEDMode.CONSTANT, '#444', '#fff'))
                     else : # NAV Locked [G]
@@ -354,28 +356,28 @@ while not sm.quit :
                 #print(SC_SimvarData[led_ref[2]])
                 #print(SC_SimvarData[led_ref[3]])
                 
-                if 1.0 == SC_SimvarData[led_ref[0]] : # ALT captured.
-                    VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.CONSTANT, '#777', '#000'))
-                elif (1.0 == SC_SimvarData[led_ref[1]]) | (1.0 == SC_SimvarData[led_ref[2]]) : # ALT armed, temporarily solution.
-                    VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1_p_2, led.LEDMode.CONSTANT, '#444', '#fff'))
-                else : # ALT disabled.
+                if 1.0 == SC_SimvarData[led_ref[0]] :
+                    if (1.0 == SC_SimvarData[led_ref[1]]) | (1.0 == SC_SimvarData[led_ref[2]]) | (1.0 == SC_SimvarData[led_ref[3]]) : # ALT armed, [Y]
+                        VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1_p_2, led.LEDMode.CONSTANT, '#444', '#fff'))
+                    else : # ALT captured, [G]
+                        VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.CONSTANT, '#777', '#000'))
+                else : # ALT disabled, [X]
                     VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.OFF, '#000', '#000'))
-            
+
             # VNV
             # TODO: Test this!!!
             elif LED_FSM_R1 == LED_FSM_R3 :
                 if (1.0 == SC_SimvarData[led_ref[0]]) : # WTAP is present
-                    if (2.0 == SC_SimvarData[led_ref[1]]) : # WTAP: VNV Active
-                        if (1.0 == SC_SimvarData[led_ref[2]]) : # WTAP: VNV Armed, [Y]
-                            VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1_p_2, led.LEDMode.CONSTANT, '#444', '#fff'))
-                        elif (2.0 == SC_SimvarData[led_ref[2]]) : # WTAP: VNV Locked, [G]
-                            VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.CONSTANT, '#777', '#000'))
+                    if (2.0 == SC_SimvarData[led_ref[1]]) : # WTAP: VNV Locked, [G]
+                        VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.CONSTANT, '#777', '#000'))
+                    elif (1.0 == SC_SimvarData[led_ref[1]]) : # WTAP: VNV Armed, [Y]
+                        VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1_p_2, led.LEDMode.CONSTANT, '#444', '#fff'))
                     else : # WTAP: VNV Disabled, [X]
                         VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.OFF, '#000', '#000'))
                 else : # Fallback to default, VNV disabled, [X]
                     VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.OFF, '#000', '#000')) 
-                
-                
+
+
             # LED control direct map:
             elif 1 == len(led_ref) :
                 if   0.0 == SC_SimvarData[led_ref[0]]: # Disabled.
@@ -390,13 +392,13 @@ while not sm.quit :
         for led_key, led_ref in VKB_LedRefMap.items():
             if   0 != len(led_ref):
                 VKB_UpdateLedCfgData(led.LEDConfig(led_key, led.ColorMode.COLOR1, led.LEDMode.OFF, '#000', '#000'))
-    
+
     ################################
     # Finally write all changes to device
     ################################ 
     if VKB_LedCfgData:
         vkb_inst.update_leds(VKB_LedCfgData)
-        
+
         # Clear cfg data (again)
         VKB_LedCfgData = []
 
